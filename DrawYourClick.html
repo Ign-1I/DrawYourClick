@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página Principal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         /* Estilos básicos para dar presentación */
         body {
@@ -38,6 +39,16 @@
             bottom: 0;
             width: 100%;
         }
+        #cuadrado-clic {
+        width: 250px;
+        height: 250px;
+        cursor: pointer;
+        user-select: none;
+        transition: transform 0.05s ease, background-color 0.2s;
+    }
+    #cuadrado-clic:active {
+        transform: scale(0.95);
+    }
     </style>
 </head>
 <body>
@@ -49,15 +60,198 @@
     <main>
         <h2>Prueba tu velocidad por click</h2>
         <p>Aqui es donde estara el lugar que registra los clicks a futuro</p>
+        <!-- Aqui es donde estara el cuadrado que cuenta los clicks por segundo -->
+        <div class="card shadow-sm mx-auto my-4 text-center" style="max-width: 450px;">
+    <div class="card-body p-4">
+        <h2 class="card-title mb-3">Test de Clics (10s)</h2>
+        
+        <div class="row mb-4">
+            <div class="col-6">
+                <div class="p-2 border rounded bg-white">
+                    <small class="text-muted d-block">Tiempo</small>
+                    <span id="tiempo" class="fs-3 fw-bold text-danger">10.0s</span>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="p-2 border rounded bg-white">
+                    <small class="text-muted d-block">Clics</small>
+                    <span id="contador" class="fs-3 fw-bold text-primary">0</span>
+                </div>
+            </div>
+        </div>
 
+        <div id="cuadrado-clic" class="bg-primary text-white rounded-3 d-flex align-items-center justify-content-center mx-auto mb-4 shadow">
+            <span id="mensaje-cuadrado" class="fs-4 fw-bold px-3">¡Haz clic aquí para empezar!</span>
+        </div>
+
+        <button id="btn-reiniciar" class="btn btn-outline-secondary w-100" disabled>Reiniciar</button>
+    </div>
+    </div>
         <h3>Records</h3>
-        <ul>
-            <!-- La idea es pasar El record personal y Record Global a su propio aportado en la navbar -->
-            <li>Record Personal:</li>
-            <li>Record Global:</li>
+        <ul> 
+            <ul>Record Personal</ul>
+            <div class="mt-4 text-start">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0">Historial de Intentos (Máx. 10)</h5>
+        <button type="button" id="btn-limpiar-tabla" class="btn btn-sm btn-outline-danger">Limpiar tabla</button>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped table-hover table-sm align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Clics</th>
+                    <th>Clics / seg</th>
+                    
+                </tr>
+            </thead>
+            <tbody id="cuerpo-tabla-clics">
+                <tr><td>1</td><td class="text-muted">-</td><td class="text-muted">
+                <tr><td>2</td><td class="text-muted">-</td><td class="text-muted">
+                <tr><td>3</td><td class="text-muted">-</td><td class="text-muted">
+                <tr><td>4</td><td class="text-muted">-</td><td class="text-muted">
+                <tr><td>5</td><td class="text-muted">-</td><td class="text-muted">
+                <tr><td>6</td><td class="text-muted">-</td><td class="text-muted">
+                <tr><td>7</td><td class="text-muted">-</td><td class="text-muted">
+                <tr><td>8</td><td class="text-muted">-</td><td class="text-muted">
+                <tr><td>9</td><td class="text-muted">-</td><td class="text-muted">
+                <tr><td>10</td><td class="text-muted">-</td><td class="text-muted">
+            </tbody>
+        </table>
+    </div>
+</div>
+            <ul>Record Global</ul>
+
         </ul>
     </main>
+<script>
+    (function() {
+        const MAX_INTENTOS = 10;
+        let clics = 0;
+        let tiempoRestante = 10.0;
+        let juegoActivo = false;
+        let juegoTerminado = false;
+        let intervalo;
+        let historial = [];
 
+        const cuadrado = document.getElementById('cuadrado-clic');
+        const textoContador = document.getElementById('contador');
+        const textoTiempo = document.getElementById('tiempo');
+        const mensajeCuadrado = document.getElementById('mensaje-cuadrado');
+        const btnReiniciar = document.getElementById('btn-reiniciar');
+        const cuerpoTabla = document.getElementById('cuerpo-tabla-clics');
+        const btnLimpiarTabla = document.getElementById('btn-limpiar-tabla');
+
+        function renderizarTabla() {
+            let filasHTML = '';
+            for (let i = 0; i < MAX_INTENTOS; i++) {
+                const intento = historial[i];
+                if (intento) {
+                    filasHTML += `
+                        <tr>
+                            <td><strong>${i + 1}</strong></td>
+                            <td>${intento.clics}</td>
+                            <td><strong>${intento.cps}</strong></td>
+                            
+                        </tr>
+                    `;
+                } else {
+                    filasHTML += `
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td class="text-muted">-</td>
+                            <td class="text-muted">-</td>
+                            
+                        </tr>
+                    `;
+                }
+            }
+            cuerpoTabla.innerHTML = filasHTML;
+        }
+
+        cuadrado.addEventListener('click', () => {
+            if (juegoTerminado) return;
+
+            if (!juegoActivo) {
+                juegoActivo = true;
+                mensajeCuadrado.textContent = "¡Sigue haciendo clic!";
+                iniciarTemporizador();
+            }
+
+            clics++;
+            textoContador.textContent = clics;
+        });
+
+        function iniciarTemporizador() {
+            intervalo = setInterval(() => {
+                tiempoRestante -= 0.1;
+                if (tiempoRestante <= 0) {
+                    tiempoRestante = 0;
+                    finalizarJuego();
+                }
+                textoTiempo.textContent = tiempoRestante.toFixed(1) + 's';
+            }, 100);
+        }
+
+        function finalizarJuego() {
+            clearInterval(intervalo);
+            juegoActivo = false;
+            juegoTerminado = true;
+
+            cuadrado.classList.remove('bg-primary');
+            cuadrado.classList.add('bg-secondary');
+            cuadrado.style.cursor = 'not-allowed';
+
+            const cps = (clics / 10).toFixed(2);
+            mensajeCuadrado.innerHTML = `¡Tiempo terminado!<br><small class="fs-6 fw-normal">(${cps} clics/seg)</small>`;
+            btnReiniciar.disabled = false;
+        }
+
+        btnReiniciar.addEventListener('click', () => {
+            if (juegoTerminado) {
+                const ahora = new Date();
+                const horaFormateada = ahora.toLocaleTimeString('es-CL', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+
+                historial.push({
+                    clics: clics,
+                    cps: (clics / 10).toFixed(2),
+                    
+                });
+
+                
+                if (historial.length > MAX_INTENTOS) {
+                    historial.shift();
+                }
+
+                renderizarTabla();
+            }
+
+            clearInterval(intervalo);
+            clics = 0;
+            tiempoRestante = 10.0;
+            juegoActivo = false;
+            juegoTerminado = false;
+
+            textoContador.textContent = '0';
+            textoTiempo.textContent = '10.0s';
+            mensajeCuadrado.textContent = '¡Haz clic aquí para empezar!';
+
+            cuadrado.classList.remove('bg-secondary');
+            cuadrado.classList.add('bg-primary');
+            cuadrado.style.cursor = 'pointer';
+            btnReiniciar.disabled = true;
+        });
+
+        btnLimpiarTabla.addEventListener('click', () => {
+            historial = [];
+            renderizarTabla();
+        });
+    })();
+</script>
     <footer>
         <p>Proyecto DrawYourMouse.</p>
     </footer>
