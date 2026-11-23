@@ -120,7 +120,7 @@
         </table>
     </div>
 </div>
-            <ul>Record Global</ul>
+           
 
         </ul>
     </main>
@@ -209,7 +209,11 @@
 
         btnReiniciar.addEventListener('click', () => {
             if (juegoTerminado) {
-
+                const ahora = new Date();
+                const horaFormateada = ahora.toLocaleTimeString('es-CL', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
                 });
 
                 historial.push({
