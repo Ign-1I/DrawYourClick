@@ -15,4 +15,5 @@ Paso 4: Luego de presionar Reiniciar en la tabla de abajo se obtiene los clics d
 
 Integrantes del proyecto:
 -Ignacio Inostroza Líder/Coordinador y Diseño UI/UX
+
 -Joaquín Neira Diseño frontend/Maquetación
