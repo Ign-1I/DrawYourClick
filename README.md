@@ -12,3 +12,7 @@ Paso3:Cuando el tiempo se acabe el usuario deberá presionar el botón Reiniciar
 Paso 4: Luego de presionar Reiniciar en la tabla de abajo se obtiene los clics del usuario.
 
 (La parte llamada Clics/Seg esta aun en progreso ya que me equivoque y por alguna razón si intento cambiarlo el codigo deja de funcionar).
+
+Integrantes del proyecto:
+-Ignacio Inostroza Líder/Coordinador y Diseño UI/UX
+-Joaquín Neira Diseño frontend/Maquetación
